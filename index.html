@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KK Admin - Unified Control Panel</title>
+    <meta name="description" content="Unified admin panel for managing KKPolls, KKNews, KKModels, and KKRequest platforms">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#e91e63">
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="https://keralakambi.ct.ws/assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://keralakambi.ct.ws/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://keralakambi.ct.ws/assets/favicon-16x16.png">
+    <link rel="manifest" href="https://keralakambi.ct.ws/assets/site.webmanifest">
+    <link rel="shortcut icon" href="https://keralakambi.ct.ws/assets/favicon.ico">
+    
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h1>🔐 KK Admin</h1>
+            <form id="loginForm" class="login-form">
+                <input type="text" id="username" placeholder="Any username" value="admin" required>
+                <input type="password" id="password" placeholder="Any password" value="test" required>
+                <button type="submit">Login (Testing Mode)</button>
+                <div class="login-help">
+                    <small>🔓 Authentication disabled for testing - enter any credentials</small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel" style="display: none;">
+        <header class="admin-header">
+            <h1>🔧 KK Admin Panel</h1>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </header>
+
+        <nav class="admin-nav">
+            <button class="nav-btn active" data-section="dashboard">🏠 Dashboard</button>
+            <button class="nav-btn" data-section="polls">📊 Polls</button>
+            <button class="nav-btn" data-section="news">📰 News</button>
+            <button class="nav-btn" data-section="models">👤 Models</button>
+            <button class="nav-btn" data-section="requests">📝 Requests</button>
+            <button class="nav-btn" data-section="users">👥 Users</button>
+            <button class="nav-btn" data-section="analytics">📈 Analytics</button>
+            <button class="nav-btn" data-section="settings">⚙️ Settings</button>
+            <button class="nav-btn" data-section="backup">💾 Backup</button>
+        </nav>
+
+        <main class="admin-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="section-header">
+                    <h2>Admin Dashboard</h2>
+                    <div class="header-actions">
+                        <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="dashboardContent"></div>
+            </section>
+
+            <!-- Polls Section -->
+            <section id="polls-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Polls</h2>
+                    <button onclick="showAddPollForm()" class="add-btn">Add Poll</button>
+                </div>
+                <div id="pollsList" class="items-list"></div>
+            </section>
+
+            <!-- News Section -->
+            <section id="news-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage News</h2>
+                    <button onclick="showAddNewsForm()" class="add-btn">Add News</button>
+                </div>
+                <div id="newsList" class="items-list"></div>
+            </section>
+
+            <!-- Models Section -->
+            <section id="models-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Models</h2>
+                    <button onclick="showAddModelForm()" class="add-btn">Add Model</button>
+                </div>
+                <div id="modelsList" class="items-list"></div>
+            </section>
+
+            <!-- Requests Section -->
+            <section id="requests-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Requests</h2>
+                </div>
+                <div id="requestsList" class="items-list"></div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Users</h2>
+                    <div class="user-stats">
+                        <span class="stat-badge">Total Users: <span id="totalUsers">0</span></span>
+                    </div>
+                </div>
+                <div id="usersList" class="items-list"></div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics-section" class="content-section">
+                <div class="section-header">
+                    <h2>Analytics & Reports</h2>
+                    <button class="refresh-btn" onclick="loadAnalytics()">🔄 Refresh</button>
+                </div>
+                <div id="analyticsContent"></div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="content-section">
+                <div class="section-header">
+                    <h2>System Settings</h2>
+                </div>
+                <div id="settingsContent"></div>
+            </section>
+
+            <!-- Backup Section -->
+            <section id="backup-section" class="content-section">
+                <div class="section-header">
+                    <h2>Backup & Restore</h2>
+                </div>
+                <div id="backupContent"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for forms -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
