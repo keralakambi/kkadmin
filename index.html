@@ -44,7 +44,13 @@
             <button class="nav-btn" data-section="polls">📊 Polls</button>
             <button class="nav-btn" data-section="news">📰 News</button>
             <button class="nav-btn" data-section="models">👤 Models</button>
+            <button class="nav-btn" data-section="videos">🎥 Videos</button>
+            <button class="nav-btn" data-section="images">🖼️ Images</button>
+            <button class="nav-btn" data-section="reels">🎦 Reels</button>
+            <button class="nav-btn" data-section="stories">📚 Stories</button>
             <button class="nav-btn" data-section="requests">📝 Requests</button>
+            <button class="nav-btn" onclick="window.location.href='kkfakes/index.html'">🎭 fakes</button>
+            <button class="nav-btn" onclick="window.location.href='kkstatus/index.html'">🟢 status</button>
             <button class="nav-btn" data-section="users">👥 Users</button>
             <button class="nav-btn" data-section="analytics">📈 Analytics</button>
             <button class="nav-btn" data-section="settings">⚙️ Settings</button>
@@ -90,6 +96,42 @@
                 <div id="modelsList" class="items-list"></div>
             </section>
 
+            <!-- Videos Section -->
+            <section id="videos-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Videos</h2>
+                    <button onclick="showAddVideoForm()" class="add-btn">Add Video</button>
+                </div>
+                <div id="videosList" class="items-list"></div>
+            </section>
+
+            <!-- Images Section -->
+            <section id="images-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Images</h2>
+                    <button onclick="showAddImageForm()" class="add-btn">Add Image</button>
+                </div>
+                <div id="imagesList" class="items-list"></div>
+            </section>
+
+            <!-- Reels Section -->
+            <section id="reels-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Reels</h2>
+                    <button onclick="showAddReelForm()" class="add-btn">Add Reel</button>
+                </div>
+                <div id="reelsList" class="items-list"></div>
+            </section>
+
+            <!-- Stories Section -->
+            <section id="stories-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Stories</h2>
+                    <button onclick="showAddStoryForm()" class="add-btn">Add Story</button>
+                </div>
+                <div id="storiesList" class="items-list"></div>
+            </section>
+
             <!-- Requests Section -->
             <section id="requests-section" class="content-section">
                 <div class="section-header">
@@ -97,6 +139,8 @@
                 </div>
                 <div id="requestsList" class="items-list"></div>
             </section>
+
+
 
             <!-- Users Section -->
             <section id="users-section" class="content-section">

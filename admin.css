@@ -1041,3 +1041,166 @@ body {
         flex-direction: column;
     }
 }
+
+/* KKStatus Overview Styles */
+.kkstatus-section {
+    margin-top: 30px;
+}
+
+.kkstatus-section h3 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.kkstatus-overview {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.kkstatus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.status-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.status-header h4 {
+    color: #e91e63;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.manage-btn {
+    padding: 6px 12px;
+    background: rgba(233, 30, 99, 0.2);
+    border: 1px solid rgba(233, 30, 99, 0.3);
+    border-radius: 6px;
+    color: #e91e63;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.manage-btn:hover {
+    background: rgba(233, 30, 99, 0.3);
+    transform: translateY(-1px);
+}
+
+.urls-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.url-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 3px solid;
+    transition: all 0.3s ease;
+}
+
+.url-item.active {
+    background: rgba(76, 175, 80, 0.1);
+    border-left-color: #4caf50;
+}
+
+.url-item.inactive {
+    background: rgba(244, 67, 54, 0.1);
+    border-left-color: #f44336;
+}
+
+.url-item:hover {
+    transform: translateX(5px);
+}
+
+.url-title {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    flex: 1;
+    margin-right: 10px;
+}
+
+.url-link {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    text-decoration: none;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.url-link:hover {
+    color: #e91e63;
+    text-decoration: underline;
+}
+
+.url-status {
+    color: #f44336;
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    background: rgba(244, 67, 54, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.more-items {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    padding: 10px;
+    font-style: italic;
+}
+
+.no-items {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 20px;
+    font-style: italic;
+}
+
+.error-message {
+    text-align: center;
+    color: #f44336;
+    padding: 20px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+@media (max-width: 768px) {
+    .kkstatus-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .url-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .url-link {
+        max-width: 100%;
+    }
+}

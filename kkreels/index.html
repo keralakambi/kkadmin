@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KK Reels Admin</title>
+    <link rel="stylesheet" href="../admin.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="admin-panel">
+        <header class="admin-header">
+            <h1>🎦 KK Reels Admin</h1>
+            <button onclick="goBack()" class="logout-btn">← Back to Admin</button>
+        </header>
+
+        <div class="admin-content">
+            <div class="section-header">
+                <h2>Manage Reels</h2>
+                <div class="header-actions">
+                    <button onclick="showAddReelForm()" class="add-btn">Add Reel</button>
+                    <button onclick="refreshReels()" class="refresh-btn">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Total Reels:</span>
+                    <span id="totalReels" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div id="reelsList" class="items-list"></div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="../supabase-config.js"></script>
+    <script src="reels-admin.js"></script>
+</body>
+</html>

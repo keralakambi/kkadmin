@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keralakambi Status - Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            color: #222;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #0066ff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #0052cc; }
+        .link-item {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: center;
+        }
+        .link-item input { flex: 1; }
+        .remove-btn {
+            width: auto;
+            background: #ff4444;
+            padding: 5px 10px;
+        }
+        .add-btn {
+            width: auto;
+            background: #44aa44;
+            padding: 5px 10px;
+        }
+        #status { 
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .admin-nav {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0 20px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+    <h1>Keralakambi Status - Admin Panel</h1><a href="../index.html" class="back-btn">← Back</a>
+    
+    <div id="status"></div>
+
+    <div class="section">
+        <h2>Active Links</h2>
+        <div id="activeLinksContainer"></div>
+        <button type="button" class="add-btn" onclick="addActiveLink()">Add Active Link</button>
+    </div>
+
+    <div class="section">
+        <h2>Inactive Links</h2>
+        <div id="inactiveLinksContainer"></div>
+        <button type="button" class="add-btn" onclick="addInactiveLink()">Add Inactive Link</button>
+    </div>
+
+    <div class="section">
+        <button onclick="saveStatus()">Save Changes</button>
+        <button onclick="loadCurrentStatus()">Reload Data</button>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5INII9Rm3Jry7D_bE-g_DyVYSLTfNYUs",
+            authDomain: "kk-ecosystem.firebaseapp.com",
+            projectId: "kk-ecosystem",
+            storageBucket: "kk-ecosystem.firebasestorage.app",
+            messagingSenderId: "144724514564",
+            appId: "1:144724514564:web:9079d944d19660ad2da251"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'error' : 'success';
+            setTimeout(() => statusDiv.textContent = '', 3000);
+        }
+
+        function addActiveLink() {
+            const container = document.getElementById('activeLinksContainer');
+            const div = document.createElement('div');
+            div.className = 'link-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Title" class="title-input">
+                <input type="url" placeholder="URL" class="url-input">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addInactiveLink() {
+            const container = document.getElementById('inactiveLinksContainer');
+            const div = document.createElement('div');
+            div.className = 'link-item';
+            div.innerHTML = `
+                <input type="url" placeholder="URL" class="url-input">
+                <input type="text" placeholder="Status (e.g., inactive, removed)" class="status-input">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(div);
+        }
+
+        async function loadCurrentStatus() {
+            try {
+                const doc = await db.collection('keralakambi-status').doc('current').get();
+                
+                // Clear containers
+                document.getElementById('activeLinksContainer').innerHTML = '';
+                document.getElementById('inactiveLinksContainer').innerHTML = '';
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    // Load active links
+                    data.activeLinks.forEach(link => {
+                        addActiveLink();
+                        const container = document.getElementById('activeLinksContainer');
+                        const lastItem = container.lastElementChild;
+                        lastItem.querySelector('.title-input').value = link.title;
+                        lastItem.querySelector('.url-input').value = link.url;
+                    });
+                    
+                    // Load inactive links
+                    data.inactiveLinks.forEach(link => {
+                        addInactiveLink();
+                        const container = document.getElementById('inactiveLinksContainer');
+                        const lastItem = container.lastElementChild;
+                        lastItem.querySelector('.url-input').value = link.url;
+                        lastItem.querySelector('.status-input').value = link.status;
+                    });
+                    
+                    showStatus('Data loaded successfully');
+                } else {
+                    // Add default entries
+                    addActiveLink();
+                    addInactiveLink();
+                    showStatus('No existing data found. Added default entries.');
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+                showStatus('Error loading data: ' + error.message, true);
+            }
+        }
+
+        async function saveStatus() {
+            try {
+                const activeLinks = [];
+                const inactiveLinks = [];
+
+                // Collect active links
+                document.querySelectorAll('#activeLinksContainer .link-item').forEach(item => {
+                    const title = item.querySelector('.title-input').value.trim();
+                    const url = item.querySelector('.url-input').value.trim();
+                    if (title && url) {
+                        activeLinks.push({ title, url });
+                    }
+                });
+
+                // Collect inactive links
+                document.querySelectorAll('#inactiveLinksContainer .link-item').forEach(item => {
+                    const url = item.querySelector('.url-input').value.trim();
+                    const status = item.querySelector('.status-input').value.trim();
+                    if (url && status) {
+                        inactiveLinks.push({ url, status });
+                    }
+                });
+
+                const data = {
+                    activeLinks,
+                    inactiveLinks,
+                    lastUpdated: new Date().toISOString().split('T')[0]
+                };
+
+                await db.collection('keralakambi-status').doc('current').set(data);
+                showStatus('Status updated successfully!');
+            } catch (error) {
+                console.error('Error saving status:', error);
+                showStatus('Error saving data: ' + error.message, true);
+            }
+        }
+
+        // Load data on page load
+        loadCurrentStatus();
+    </script>
+</body>
+</html>

@@ -117,6 +117,18 @@ function loadSection(section) {
         case 'models':
             window.location.href = 'kkmodels/index.html';
             break;
+        case 'videos':
+            window.location.href = 'kkvideos/index.html';
+            break;
+        case 'images':
+            window.location.href = 'kkimages/index.html';
+            break;
+        case 'reels':
+            window.location.href = 'kkreels/index.html';
+            break;
+        case 'stories':
+            window.location.href = 'kkstories/index.html';
+            break;
         case 'requests':
             window.location.href = 'kkrequest/index.html';
             break;
@@ -172,10 +184,73 @@ async function loadDashboard() {
                     </div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon">🎥</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.totalVideos || 0}</div>
+                        <div class="stat-label">Videos</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🖼️</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.totalImages || 0}</div>
+                        <div class="stat-label">Images</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎦</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.totalReels || 0}</div>
+                        <div class="stat-label">Reels</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.totalStories || 0}</div>
+                        <div class="stat-label">Stories</div>
+                    </div>
+                </div>
+                <div class="stat-card">
                     <div class="stat-icon">📝</div>
                     <div class="stat-info">
                         <div class="stat-number">${systemStats.totalRequests || 0}</div>
                         <div class="stat-label">Requests</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.kkfakesGroups || 0}</div>
+                        <div class="stat-label">KKfakes Groups</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.kkfakesPosts || 0}</div>
+                        <div class="stat-label">KKfakes Posts</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.kkfakesUsers || 0}</div>
+                        <div class="stat-label">KKfakes Users</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🟢</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.kkstatusActiveUrls || 0}</div>
+                        <div class="stat-label">Active URLs</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔴</div>
+                    <div class="stat-info">
+                        <div class="stat-number">${systemStats.kkstatusInactiveUrls || 0}</div>
+                        <div class="stat-label">Inactive URLs</div>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -211,10 +286,16 @@ async function loadDashboard() {
                     <h3>Recent Activity</h3>
                     <div id="recentActivity" class="activity-list"></div>
                 </div>
+                
+                <div class="kkstatus-section">
+                    <h3>KKStatus URLs Overview</h3>
+                    <div id="kkstatusOverview" class="kkstatus-overview"></div>
+                </div>
             </div>
         `;
         
         loadRecentActivity();
+        loadKKStatusOverview();
     } catch (error) {
         console.error('Error loading dashboard:', error);
     }
@@ -222,6 +303,92 @@ async function loadDashboard() {
 
 async function loadSystemStats() {
     try {
+        // Get videos from separate Firebase instance
+        let videos = [];
+        try {
+            const videosResponse = await fetch('https://firestore.googleapis.com/v1/projects/kkvideos2/databases/(default)/documents/videos');
+            if (videosResponse.ok) {
+                const videosData = await videosResponse.json();
+                videos = videosData.documents ? videosData.documents.filter(doc => 
+                    !doc.fields?.status?.stringValue || doc.fields.status.stringValue !== 'deleted'
+                ) : [];
+            }
+        } catch (e) {
+            console.log('Could not fetch videos count:', e);
+        }
+        
+        // Get Supabase data
+        let images = [], reels = [], stories = [];
+        try {
+            const supabaseResponse = await fetch('https://kuemntplqdkimlschqap.supabase.co/rest/v1/images?select=id', {
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZW1udHBscWRraW1sc2NocWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODEzODcsImV4cCI6MjA3ODk1NzM4N30.ON-JfNYT2K-6xO2cuQ8JhhB5XqWOo7T19dpU4UBE1HM'
+                }
+            });
+            if (supabaseResponse.ok) {
+                images = await supabaseResponse.json();
+            }
+            
+            const reelsResponse = await fetch('https://kuemntplqdkimlschqap.supabase.co/rest/v1/reels?select=id', {
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZW1udHBscWRraW1sc2NocWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODEzODcsImV4cCI6MjA3ODk1NzM4N30.ON-JfNYT2K-6xO2cuQ8JhhB5XqWOo7T19dpU4UBE1HM'
+                }
+            });
+            if (reelsResponse.ok) {
+                reels = await reelsResponse.json();
+            }
+            
+            const storiesResponse = await fetch('https://kuemntplqdkimlschqap.supabase.co/rest/v1/stories?select=id', {
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZW1udHBscWRraW1sc2NocWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODEzODcsImV4cCI6MjA3ODk1NzM4N30.ON-JfNYT2K-6xO2cuQ8JhhB5XqWOo7T19dpU4UBE1HM'
+                }
+            });
+            if (storiesResponse.ok) {
+                stories = await storiesResponse.json();
+            }
+        } catch (e) {
+            console.log('Could not fetch Supabase data:', e);
+        }
+        
+        // Get KKfakes data
+        let kkfakesData = { groups: [], posts: [], users: {} };
+        try {
+            const kkfakesResponse = await fetch('https://firestore.googleapis.com/v1/projects/kk-ecosystem/databases/(default)/documents/groups');
+            if (kkfakesResponse.ok) {
+                const groupsData = await kkfakesResponse.json();
+                kkfakesData.groups = groupsData.documents || [];
+            }
+            
+            const postsResponse = await fetch('https://firestore.googleapis.com/v1/projects/kk-ecosystem/databases/(default)/documents/posts');
+            if (postsResponse.ok) {
+                const postsData = await postsResponse.json();
+                kkfakesData.posts = postsData.documents || [];
+            }
+            
+            const usersResponse = await fetch('https://firestore.googleapis.com/v1/projects/kk-ecosystem/databases/(default)/documents/users');
+            if (usersResponse.ok) {
+                const usersData = await usersResponse.json();
+                kkfakesData.users = usersData.documents || [];
+            }
+        } catch (e) {
+            console.log('Could not fetch KKfakes data:', e);
+        }
+        
+        // Get KKStatus data
+        let kkstatusData = { activeLinks: [], inactiveLinks: [] };
+        try {
+            const kkstatusResponse = await fetch('https://firestore.googleapis.com/v1/projects/kk-ecosystem/databases/(default)/documents/keralakambi-status/current');
+            if (kkstatusResponse.ok) {
+                const statusData = await kkstatusResponse.json();
+                if (statusData.fields) {
+                    kkstatusData.activeLinks = statusData.fields.activeLinks?.arrayValue?.values || [];
+                    kkstatusData.inactiveLinks = statusData.fields.inactiveLinks?.arrayValue?.values || [];
+                }
+            }
+        } catch (e) {
+            console.log('Could not fetch KKStatus data:', e);
+        }
+        
         const [polls, news, models, requests, users] = await Promise.all([
             dbOperations.getAll('polls').catch(() => []),
             dbOperations.getAll('news').catch(() => []),
@@ -234,10 +401,26 @@ async function loadSystemStats() {
             totalPolls: polls.length,
             totalNews: news.length,
             totalModels: models.length,
+            totalVideos: videos.length,
+            totalImages: images.length,
+            totalReels: reels.length,
+            totalStories: stories.length,
             totalRequests: requests.length,
             totalUsers: users.length,
-            totalViews: news.reduce((sum, article) => sum + (article.views || 0), 0)
+            totalViews: news.reduce((sum, article) => sum + (article.views || 0), 0),
+            kkfakesGroups: kkfakesData.groups.length,
+            kkfakesPosts: kkfakesData.posts.length,
+            kkfakesUsers: kkfakesData.users.length,
+            kkstatusActiveUrls: kkstatusData.activeLinks.length,
+            kkstatusInactiveUrls: kkstatusData.inactiveLinks.length
         };
+        
+        // Update KKfakes section stats
+        if (document.getElementById('kkfakesGroups')) {
+            document.getElementById('kkfakesGroups').textContent = systemStats.kkfakesGroups;
+            document.getElementById('kkfakesPosts').textContent = systemStats.kkfakesPosts;
+            document.getElementById('kkfakesUsers').textContent = systemStats.kkfakesUsers;
+        }
         
         console.log('System stats loaded:', systemStats);
     } catch (error) {
@@ -246,9 +429,18 @@ async function loadSystemStats() {
             totalPolls: 0,
             totalNews: 0,
             totalModels: 0,
+            totalVideos: 0,
+            totalImages: 0,
+            totalReels: 0,
+            totalStories: 0,
             totalRequests: 0,
             totalUsers: 0,
-            totalViews: 0
+            totalViews: 0,
+            kkfakesGroups: 0,
+            kkfakesPosts: 0,
+            kkfakesUsers: 0,
+            kkstatusActiveUrls: 0,
+            kkstatusInactiveUrls: 0
         };
     }
 }
@@ -269,6 +461,75 @@ async function loadRecentActivity() {
         `).join('') || '<div class="no-activity">No recent activity</div>';
     } catch (error) {
         console.error('Error loading recent activity:', error);
+    }
+}
+
+async function loadKKStatusOverview() {
+    try {
+        const overviewContainer = document.getElementById('kkstatusOverview');
+        
+        // Fetch KKStatus data
+        const kkstatusResponse = await fetch('https://firestore.googleapis.com/v1/projects/kk-ecosystem/databases/(default)/documents/keralakambi-status/current');
+        let activeLinks = [];
+        let inactiveLinks = [];
+        
+        if (kkstatusResponse.ok) {
+            const statusData = await kkstatusResponse.json();
+            if (statusData.fields) {
+                activeLinks = statusData.fields.activeLinks?.arrayValue?.values || [];
+                inactiveLinks = statusData.fields.inactiveLinks?.arrayValue?.values || [];
+            }
+        }
+        
+        overviewContainer.innerHTML = `
+            <div class="kkstatus-grid">
+                <div class="status-section">
+                    <div class="status-header">
+                        <h4>🟢 Active URLs (${activeLinks.length})</h4>
+                        <button class="manage-btn" onclick="window.open('kkstatus/index.html', '_blank')">Manage</button>
+                    </div>
+                    <div class="urls-list">
+                        ${activeLinks.slice(0, 5).map(link => {
+                            const title = link.mapValue?.fields?.title?.stringValue || 'No title';
+                            const url = link.mapValue?.fields?.url?.stringValue || '#';
+                            return `
+                                <div class="url-item active">
+                                    <span class="url-title">${title}</span>
+                                    <a href="${url}" target="_blank" class="url-link">${url.length > 40 ? url.substring(0, 40) + '...' : url}</a>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${activeLinks.length > 5 ? `<div class="more-items">+${activeLinks.length - 5} more active URLs</div>` : ''}
+                        ${activeLinks.length === 0 ? '<div class="no-items">No active URLs</div>' : ''}
+                    </div>
+                </div>
+                
+                <div class="status-section">
+                    <div class="status-header">
+                        <h4>🔴 Inactive URLs (${inactiveLinks.length})</h4>
+                        <button class="manage-btn" onclick="window.open('kkstatus/index.html', '_blank')">Manage</button>
+                    </div>
+                    <div class="urls-list">
+                        ${inactiveLinks.slice(0, 5).map(link => {
+                            const url = link.mapValue?.fields?.url?.stringValue || '#';
+                            const status = link.mapValue?.fields?.status?.stringValue || 'inactive';
+                            return `
+                                <div class="url-item inactive">
+                                    <span class="url-status">${status}</span>
+                                    <span class="url-link">${url.length > 40 ? url.substring(0, 40) + '...' : url}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${inactiveLinks.length > 5 ? `<div class="more-items">+${inactiveLinks.length - 5} more inactive URLs</div>` : ''}
+                        ${inactiveLinks.length === 0 ? '<div class="no-items">No inactive URLs</div>' : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading KKStatus overview:', error);
+        const overviewContainer = document.getElementById('kkstatusOverview');
+        overviewContainer.innerHTML = '<div class="error-message">Failed to load KKStatus data</div>';
     }
 }
 
@@ -552,6 +813,73 @@ async function deleteModel(id) {
             console.error('Error deleting model:', error);
         }
     }
+}
+
+// Videos Management
+function showAddVideoForm() {
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <h2>Add Video</h2>
+        <form id="videoForm">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="videoTitle" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="videoCategory" required>
+                    <option value="amateur">Amateur</option>
+                    <option value="professional">Professional</option>
+                    <option value="couples">Couples</option>
+                    <option value="solo">Solo</option>
+                    <option value="fetish">Fetish</option>
+                    <option value="vintage">Vintage</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Video URL</label>
+                <input type="url" id="videoUrl" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="videoDescription" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Thumbnail URL</label>
+                <input type="url" id="videoThumbnail">
+            </div>
+            <button type="submit" class="form-submit">Add Video</button>
+        </form>
+    `;
+    
+    document.getElementById('modal').style.display = 'block';
+    
+    document.getElementById('videoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('videoTitle').value;
+        const category = document.getElementById('videoCategory').value;
+        const videoUrl = document.getElementById('videoUrl').value;
+        const description = document.getElementById('videoDescription').value;
+        const thumbnail = document.getElementById('videoThumbnail').value;
+        
+        try {
+            await dbOperations.add('videos', {
+                title,
+                category,
+                videoUrl,
+                description,
+                thumbnail,
+                views: 0,
+                likes: 0,
+                isActive: true
+            });
+            closeModal();
+            alert('Video added successfully!');
+        } catch (error) {
+            console.error('Error adding video:', error);
+        }
+    });
 }
 
 // Requests Management
@@ -1415,6 +1743,8 @@ window.bulkPermissions = bulkPermissions;
 window.bulkCacheOperations = bulkCacheOperations;
 window.bulkLogCleanup = bulkLogCleanup;
 window.bulkOptimization = bulkOptimization;
+window.showAddVideoForm = showAddVideoForm;
+window.loadKKStatusOverview = loadKKStatusOverview;
 
 
 

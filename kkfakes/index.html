@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKfakes Admin Panel</title>
+    <link rel="stylesheet" href="../admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .admin-container { background: white; min-height: 100vh; }
+        .admin-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .admin-header h1 { font-size: 1.5rem; font-weight: 600; }
+        .admin-header nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px; transition: background 0.3s; }
+        .admin-header nav a:hover { background: rgba(255,255,255,0.2); }
+        .admin-main { padding: 2rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e1e5e9; }
+        .stat-number { font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 0.5rem; }
+        .tabs { display: flex; margin: 2rem 0; border-bottom: 2px solid #e1e5e9; }
+        .tab { padding: 1rem 2rem; background: none; border: none; cursor: pointer; font-weight: 500; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab:hover { background: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .admin-section { margin: 2rem 0; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .admin-section h2 { color: #1e293b; margin-bottom: 1.5rem; font-weight: 600; }
+        .filter-section { margin: 1.5rem 0; padding: 1.5rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 8px; }
+        .filter-section label { color: #475569; font-weight: 600; }
+        .filter-section select { padding: 0.75rem 1rem; margin-left: 1rem; border: 1px solid #cbd5e1; border-radius: 6px; background: white; color: #475569; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .data-table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; font-weight: 600; text-align: left; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; }
+        .data-table tbody tr:hover { background: #f8fafc; }
+        .btn { padding: 0.5rem 1rem; margin: 0.25rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 2rem; border-radius: 12px; width: 90%; max-width: 600px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .close { color: #94a3b8; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #475569; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; color: #374151; background: white; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .modal-content h3 { color: #1f2937; margin-bottom: 1.5rem; font-weight: 600; }
+        .form-group textarea { height: 100px; resize: vertical; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>KKfakes Admin Panel</h1>
+            <nav>
+                <a href="../index.html">← Back to Admin</a>
+            </nav>
+        </header>
+
+        <main class="admin-main">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalGroups">0</div>
+                    <div>Total Groups</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPosts">0</div>
+                    <div>Total Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div>Total Users</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('groups')">Groups</div>
+                <div class="tab" onclick="showTab('posts')">Posts</div>
+                <div class="tab" onclick="showTab('users')">Users</div>
+            </div>
+
+            <div id="groups" class="tab-content active">
+                <div class="admin-section">
+                    <h2>Groups Management</h2>
+                    <button onclick="showAddGroupForm()" class="btn btn-success" style="margin-bottom: 1rem;">Add New Group</button>
+                    <div class="filter-section">
+                        <label for="groupCategoryFilter">Filter by Category:</label>
+                        <select id="groupCategoryFilter" onchange="filterGroups()">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <table class="data-table" id="groupsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Section</th>
+                                <th>Category</th>
+                                <th>Creator</th>
+                                <th>Posts</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="posts" class="tab-content">
+                <div class="admin-section">
+                    <h2>Posts Management</h2>
+                    <div class="filter-section">
+                        <label for="groupFilter">Filter by Group:</label>
+                        <select id="groupFilter" onchange="filterPosts()">
+                            <option value="">All Groups</option>
+                        </select>
+                    </div>
+                    <table class="data-table" id="postsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Author</th>
+                                <th>Group</th>
+                                <th>Content</th>
+                                <th>Media</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="users" class="tab-content">
+                <div class="admin-section">
+                    <h2>Users Management</h2>
+                    <table class="data-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Posts</th>
+                                <th>Badges</th>
+                                <th>Reactions</th>
+                                <th>Joined</th>
+                                <th>Staff</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Modals -->
+    <div id="editGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editGroupModal')">&times;</span>
+            <h3>Edit Group</h3>
+            <form id="editGroupForm">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="editGroupName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="editGroupDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category:</label>
+                    <input type="text" id="editGroupCategory">
+                </div>
+                <div class="form-group">
+                    <label>Admin Only:</label>
+                    <select id="editGroupAdminOnly">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-success" onclick="saveGroupEdit()">Save Changes</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal('editGroupModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editPostModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editPostModal')">&times;</span>
+            <h3>Edit Post</h3>
+            <form id="editPostForm">
+                <div class="form-group">
+                    <label>Content:</label>
+                    <textarea id="editPostContent" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Media URL:</label>
+                    <input type="url" id="editPostMediaUrl">
+                </div>
+                <button type="button" class="btn btn-success" onclick="savePostEdit()">Save Changes</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal('editPostModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editUserModal')">&times;</span>
+            <h3>Edit User</h3>
+            <form id="editUserForm">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="editUserUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Profile URL:</label>
+                    <input type="url" id="editUserProfileUrl">
+                </div>
+                <div class="form-group">
+                    <label>Staff Status:</label>
+                    <select id="editUserStaffStatus">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-success" onclick="saveUserEdit()">Save Changes</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal('editUserModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addGroupModal')">&times;</span>
+            <h3>Add New Group</h3>
+            <form id="addGroupForm">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="addGroupName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="addGroupDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Section:</label>
+                    <select id="addGroupSection" onchange="updateCategoryOptions()" required>
+                        <option value="">Select Section</option>
+                        <option value="forums">Forums</option>
+                        <option value="threads">Threads</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category:</label>
+                    <select id="addGroupCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Creator:</label>
+                    <input type="text" id="addGroupCreator" required>
+                </div>
+                <div class="form-group">
+                    <label>Admin Only:</label>
+                    <select id="addGroupAdminOnly">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Is Pinned:</label>
+                    <select id="addGroupPinned" onchange="togglePinOrder()">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group" id="pinOrderGroup" style="display: none;">
+                    <label>Pin Order:</label>
+                    <select id="addGroupPinOrder">
+                        <option value="">Select Pin Order</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-success" onclick="saveNewGroup()">Add Group</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal('addGroupModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5INII9Rm3Jry7D_bE-g_DyVYSLTfNYUs",
+            authDomain: "kk-ecosystem.firebaseapp.com",
+            projectId: "kk-ecosystem",
+            storageBucket: "kk-ecosystem.firebasestorage.app",
+            messagingSenderId: "144724514564",
+            appId: "1:144724514564:web:9079d944d19660ad2da251"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        window.firebaseApp = app;
+        window.db = getFirestore(app);
+        window.auth = getAuth(app);
+        window.storage = getStorage(app);
+    </script>
+    <script type="module" src="../firebase-integration.js"></script>
+    <script src="kkfakes-admin.js"></script>
+</body>
+</html>

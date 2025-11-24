@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KK Videos Admin</title>
+    <link rel="stylesheet" href="../admin.css">
+    <style>
+        .video-preview {
+            width: 100px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .video-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .video-details h4 {
+            margin: 0 0 5px 0;
+            color: #fff;
+        }
+        .video-details p {
+            margin: 0;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-panel">
+        <header class="admin-header">
+            <h1>🎥 KK Videos Admin</h1>
+            <button onclick="goBack()" class="logout-btn">← Back to Admin</button>
+        </header>
+
+        <div class="admin-content">
+            <div class="section-header">
+                <h2>Manage Videos</h2>
+                <div class="header-actions">
+                    <button onclick="showAddVideoForm()" class="add-btn">Add Video</button>
+                    <button onclick="refreshVideos()" class="refresh-btn">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Total Videos:</span>
+                    <span id="totalVideos" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Views:</span>
+                    <span id="totalViews" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Active Videos:</span>
+                    <span id="activeVideos" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div id="videosList" class="items-list"></div>
+        </div>
+    </div>
+
+    <!-- Modal for forms -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="videos-admin.js"></script>
+</body>
+</html>
